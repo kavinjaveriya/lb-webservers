@@ -1,0 +1,19 @@
+---
+# tasks file for webserver
+  - name: installing the httpd software
+    package:
+            name: httpd
+            state: present
+  - name: installing the php package
+    package:
+            name: php
+            state: present
+  - name: copy web pages
+    copy:
+            src: /etc/index.php
+            dest: /var/www/html/
+  - name: services
+    service:
+            name: httpd
+            state: started
+
