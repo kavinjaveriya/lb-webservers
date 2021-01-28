@@ -1,0 +1,49 @@
+- hosts: localhost
+  vars:
+          instance_name_tag: "lb"
+          no_of_instances: "1"
+        
+  vars_prompt:
+          - name: lbchoice
+            prompt: "---Do You Want a load balancer instance,true or false---"
+            private: no
+  roles:
+  - name: Ec2 role
+    role: "ec2"
+    when: lbchoice|bool == true
+
+- hosts: localhost
+  vars:
+          instance_name_tag: "webserver"
+  vars_prompt:
+          - name: wschoice
+            prompt: "---Do You Want a webserver instances,true or false.---"
+            private: no
+          - name: no_of_instances
+            prompt: "---How many webserver instances you want in Numbers,eg.1.---"
+            private: no
+
+  roles:
+  - name: launching Instances for webserver
+    role: "ec2"
+    when: wschoice|bool == true
+
+  tasks:
+  - name: waiting for instnaces ssh
+    command: sleep 75
+    when: wschoice|bool == true
+
+    
+  - name: refresh inventory
+    meta: refresh_inventory
+
+- hosts: tag_name_webserver
+  roles:
+  - name: configure web server
+    role: webserver
+
+- hosts: tag_name_lb
+  roles:
+  - name: configure loadbalancer
+    role: loadbalancer
+
